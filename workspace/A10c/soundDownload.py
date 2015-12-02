@@ -3,21 +3,54 @@ import freesound as fs
 import json
 
 descriptors = [ 'lowlevel.spectral_centroid.mean',
-				'lowlevel.spectral_contrast.mean',
-				'lowlevel.dissonance.mean',
-				'lowlevel.hfc.mean',
-				'lowlevel.mfcc.mean',
-				'sfx.logattacktime.mean',
-				'sfx.inharmonicity.mean']
+                'lowlevel.spectral_contrast.mean',
+                'lowlevel.dissonance.mean',
+                'lowlevel.hfc.mean',
+                'lowlevel.mfcc.mean',
+                'sfx.logattacktime.mean',
+                'sfx.inharmonicity.mean']
 
-#---------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------
 def downloadFreesound(
-		queryText = '',         tag=None,
-		duration = None,        API_Key = '',
-		outputDir = '',         topNResults = 5,
-		featureExt = '.json',   preview=True,
-		emptyDir=False,         omitQueryText=False,
+        queryText = '',         tag=None,
+        duration = None,        API_Key = '',
+        outputDir = '',         topNResults = 5,
+        featureExt = '.json',   preview=True,
+        emptyDir=False,         omitQueryText=False,
         pack='',                freeSoundId=''):
+
+  """
+  This function downloads sounds and their descriptors from freesound using the queryText and the
+  tag specified in the input. Additionally, you can also specify the duration range to filter sounds
+  based on duration.
+
+  Inputs:
+        (Input parameters marked with a * are optional)
+        queryText (string): query text for the sounds (eg. "violin", "trumpet", "cello", "bassoon" etc.)
+        tag* (string): tag to be used for filtering the searched sounds. (eg. "multisample",
+                       "single-note" etc.)
+        duration* (tuple): min and the max duration (seconds) of the sound to filter, eg. (0.2,15)
+        API_Key (string): your api key, which you can obtain from : www.freesound.org/apiv2/apply/
+        outputDir (string): path to the directory where you want to store the sounds and their
+                            descriptors
+        topNResults (integer): number of results(sounds) that you want to download
+        featureExt (string): file extension for storing sound descriptors
+        preview* (boolean): if true low quality sound is downloaded, if false high quality
+        emptyDir* (boolean): if true the directory of name <queryText> will be deleted, if false
+                            downloaded sounds will bee added and the file list will be appended
+        omitQueryText* (boolean): the queryText is also needed to give the download folder a name,
+                                 setting this to false will not use it as a query string
+        pack* (string): filtering for freesound pack names
+        freeSoundId* (string): download a sound using its freesound-id
+  output:
+        This function downloads sounds and descriptors, and then stores them in outputDir. In
+        outputDir it creates a directory of the same name as that of the queryText. In this
+        directory outputDir/queryText it creates a directory for every sound with the name
+        of the directory as the sound id. Additionally, this function also dumps a text file
+        containing sound-ids and freesound links for all the downloaded sounds in the outputDir.
+        NOTE: If the directory outputDir/queryText exists, it deletes the existing contents
+        and stores only the sounds from the current query.
+  """
 
     if queryText == "" or API_Key == "" or outputDir == "" or not os.path.exists(outputDir):
         print "\n"
@@ -135,4 +168,3 @@ def downloadFreesound(
         for elem in downloadedSounds:
             fid.write('\t'.join(elem)+'\n')
         fid.close()
-
