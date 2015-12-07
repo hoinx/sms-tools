@@ -43,7 +43,8 @@ def downloadFreesound(
         outputDir = '',         topNResults = 5,
         featureExt = '.json',   preview=True,
         emptyDir=False,         folderName = '',
-        pack='',                freeSoundId=''):
+        pack='',                freeSoundId='',
+        noDownload=False):
 
     """
     This function downloads sounds and their descriptors from freesound using the queryText and the
@@ -69,6 +70,7 @@ def downloadFreesound(
                                  setting this parameter has precedence and the query string can be empty
         pack* (string): filtering for freesound pack names
         freeSoundId* (string): download a sound using its freesound-id
+        noDownload* (boolean): if true only the sound list will be printed
     output:
         This function downloads sounds and descriptors, and then stores them in outputDir. In
         outputDir it creates a directory of the same name as that of the queryText. In this
@@ -96,11 +98,19 @@ def downloadFreesound(
     filter = appendQuery(filter, "pack", pack)
     filter = appendQuery(filter, "id", freeSoundId)
 
+    fields = 'id,name,username,url'
+    if noDownload:
+        fields += ',tags'
+    else:
+        fields += ',previews,analysis'
+
     search = {'sort': 'score',
-              'fields': 'id,name,previews,username,url,analysis',
-              'descriptors': ','.join(descriptors),
+              'fields': fields,
               'page_size': page_size,
               'normalized': 1}
+
+    if not noDownload:
+        search['descriptors'] = ','.join(descriptors)
 
     if not queryText == "":
         search['query'] = queryText
@@ -109,6 +119,39 @@ def downloadFreesound(
         search['filter'] = filter
 
     qRes = fsClnt.text_search(**search) # Querying Freesound
+
+    pageNo = 1
+    sndCnt = 0
+    indCnt = 0
+    totalSnds = min(qRes.count,200)   # System quits after trying to download after 200 times
+
+    if noDownload:
+        print "Found %s sounds:" % (str(qRes.count), )
+        if qRes.count == 0:
+            return
+
+        while True:
+
+            if indCnt >= totalSnds:
+                print "Done."
+                return
+
+            sound = qRes[indCnt - ((pageNo-1)*page_size)]
+            tags = ','.join(sound.tags)
+            print "Found [id: %s], [name: %s], [url: %s], [tags: %s]" % (str(sound.id), sound.name, sound.url, tags)
+
+            indCnt +=1
+
+            if indCnt%page_size==0:
+                qRes = qRes.next_page()
+                pageNo+=1
+
+            if sndCnt>=topNResults:
+                break
+
+        return
+
+
 
     if folderName == "":
         folderName = queryText
@@ -121,14 +164,9 @@ def downloadFreesound(
     else:
         os.mkdir(outDir2)
 
-    pageNo = 1
-    sndCnt = 0
-    indCnt = 0
-    totalSnds = min(qRes.count,200)   # System quits after trying to download after 200 times
-
     # Creating directories to store output and downloading sounds and their descriptors
     downloadedSounds = []
-    while(1):
+    while True:
 
         if indCnt >= totalSnds:
             print "Not able to download required number of sounds..."
