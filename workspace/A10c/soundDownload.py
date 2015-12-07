@@ -12,11 +12,11 @@ descriptors = [ 'lowlevel.spectral_centroid.mean',
 
 # ---------------------------------------------------------------------------------------------
 def inParenthesis(str):
-    return str.startswith('(') and str.startswith('(')
+    return str.startswith('(') and str.endswith(')')
 
 # ---------------------------------------------------------------------------------------------
 def appendQuery(filter, key, value):
-    if value and type(value) != str:
+    if not value or not type(value) == str:
         return filter
     if not filter == "":
         filter += (' ')
@@ -42,7 +42,7 @@ def downloadFreesound(
         duration = None,        API_Key = '',
         outputDir = '',         topNResults = 5,
         featureExt = '.json',   preview=True,
-        emptyDir=False,         omitQueryText=False,
+        emptyDir=False,         folderName = '',
         pack='',                freeSoundId=''):
 
     """
@@ -52,6 +52,7 @@ def downloadFreesound(
 
     Inputs:
         (Input parameters marked with a * are optional)
+
         queryText (string): query text for the sounds (eg. "violin", "trumpet", "cello", "bassoon" etc.)
         tag* (string): tag to be used for filtering the searched sounds. (eg. "multisample",
                        "single-note" etc.)
@@ -64,8 +65,8 @@ def downloadFreesound(
         preview* (boolean): if true low quality sound is downloaded, if false high quality
         emptyDir* (boolean): if true the directory of name <queryText> will be deleted, if false
                             downloaded sounds will bee added and the file list will be appended
-        omitQueryText* (boolean): the queryText is also needed to give the download folder a name,
-                                 setting this to false will not use it as a query string
+        folderName* (string): the queryText was also used to give the download folder a name,
+                                 setting this parameter has precedence and the query string can be empty
         pack* (string): filtering for freesound pack names
         freeSoundId* (string): download a sound using its freesound-id
     output:
@@ -78,7 +79,7 @@ def downloadFreesound(
         and stores only the sounds from the current query.
     """
 
-    if queryText == "" or API_Key == "" or outputDir == "" or not os.path.exists(outputDir):
+    if (queryText == "" and folderName == "") or API_Key == "" or outputDir == "" or not os.path.exists(outputDir):
         print "\n"
         print "Error: Wrong parameters"
         return -1
@@ -95,13 +96,13 @@ def downloadFreesound(
     filter = appendQuery(filter, "pack", pack)
     filter = appendQuery(filter, "id", freeSoundId)
 
-    search = {'sort':'score',
-              'fields':'id,name,previews,username,url,analysis',
-              'descriptors':','.join(descriptors),
-              'page_size':page_size,
-              'normalized':1}
+    search = {'sort': 'score',
+              'fields': 'id,name,previews,username,url,analysis',
+              'descriptors': ','.join(descriptors),
+              'page_size': page_size,
+              'normalized': 1}
 
-    if not omitQueryText:
+    if not queryText == "":
         search['query'] = queryText
 
     if not filter == "":
@@ -109,7 +110,10 @@ def downloadFreesound(
 
     qRes = fsClnt.text_search(**search) # Querying Freesound
 
-    outDir2 = os.path.join(outputDir, queryText)
+    if folderName == "":
+        folderName = queryText
+
+    outDir2 = os.path.join(outputDir, folderName)
     if os.path.exists(outDir2):
         if emptyDir:
             os.system("rm -r " + outDir2)
@@ -132,7 +136,7 @@ def downloadFreesound(
 
         sound = qRes[indCnt - ((pageNo-1)*page_size)]
         print "Downloading mp3 and descriptors for sound with id: %s"%str(sound.id)
-        outDir1 = os.path.join(outputDir, queryText, str(sound.id))
+        outDir1 = os.path.join(outputDir, folderName, str(sound.id))
 
         if os.path.exists(outDir1):
             os.system("rm -r " + outDir1)
@@ -172,7 +176,7 @@ def downloadFreesound(
             break
 
         # Dump the list of files and Freesound links
-        fid = open(os.path.join(outDir2, queryText+'_SoundList.txt'), 'ab+')
+        fid = open(os.path.join(outDir2, folderName+'_SoundList.txt'), 'ab+')
         fid.seek(0, 1) # seek end
         for elem in downloadedSounds:
             fid.write('\t'.join(elem)+'\n')
