@@ -11,6 +11,32 @@ descriptors = [ 'lowlevel.spectral_centroid.mean',
                 'sfx.inharmonicity.mean']
 
 # ---------------------------------------------------------------------------------------------
+def inParenthesis(str):
+    return str.startswith('(') and str.startswith('(')
+
+# ---------------------------------------------------------------------------------------------
+def appendQuery(filter, key, value):
+    if value and type(value) != str:
+        return filter
+    if not filter == "":
+        filter += (' ')
+    filter += (key+": ")
+    if inParenthesis(value):
+        filter += (value)
+        return filter
+    filter += ("\""+value+"\"")
+    return filter
+
+# ---------------------------------------------------------------------------------------------
+def appendRangeQuery(filter, key, duration):
+    if not duration or not type(duration) == tuple:
+        return filter
+    if not filter == "":
+        filter += (' ')
+    filter += (key+":[" + str(duration[0]) + " TO " + str(duration[1]) + "]")
+    return filter
+
+# ---------------------------------------------------------------------------------------------
 def downloadFreesound(
         queryText = '',         tag=None,
         duration = None,        API_Key = '',
@@ -19,12 +45,12 @@ def downloadFreesound(
         emptyDir=False,         omitQueryText=False,
         pack='',                freeSoundId=''):
 
-  """
-  This function downloads sounds and their descriptors from freesound using the queryText and the
-  tag specified in the input. Additionally, you can also specify the duration range to filter sounds
-  based on duration.
+    """
+    This function downloads sounds and their descriptors from freesound using the queryText and the
+    tag specified in the input. Additionally, you can also specify the duration range to filter sounds
+    based on duration.
 
-  Inputs:
+    Inputs:
         (Input parameters marked with a * are optional)
         queryText (string): query text for the sounds (eg. "violin", "trumpet", "cello", "bassoon" etc.)
         tag* (string): tag to be used for filtering the searched sounds. (eg. "multisample",
@@ -42,7 +68,7 @@ def downloadFreesound(
                                  setting this to false will not use it as a query string
         pack* (string): filtering for freesound pack names
         freeSoundId* (string): download a sound using its freesound-id
-  output:
+    output:
         This function downloads sounds and descriptors, and then stores them in outputDir. In
         outputDir it creates a directory of the same name as that of the queryText. In this
         directory outputDir/queryText it creates a directory for every sound with the name
@@ -50,7 +76,7 @@ def downloadFreesound(
         containing sound-ids and freesound links for all the downloaded sounds in the outputDir.
         NOTE: If the directory outputDir/queryText exists, it deletes the existing contents
         and stores only the sounds from the current query.
-  """
+    """
 
     if queryText == "" or API_Key == "" or outputDir == "" or not os.path.exists(outputDir):
         print "\n"
@@ -64,27 +90,10 @@ def downloadFreesound(
     page_size = 30
 
     filter = ""
-    if tag and type(tag) == str:
-        flt_tag = "tag:\""+tag+"\""
-        filter += flt_tag
-
-    if duration and type(duration) == tuple:
-        flt_dur = "duration:[" + str(duration[0])+ " TO " +str(duration[1]) + "]"
-        if not filter == "":
-            filter += ' '
-        filter += flt_dur
-
-    if pack and type(pack) == str:
-        flt_pack = "pack:\""+pack+"\""
-        if not filter == "":
-            filter += ' '
-        filter += flt_pack
-
-    if freeSoundId and type(freeSoundId) == str:
-        flt_freeSoundId = "id:\""+freeSoundId+"\""
-        if not filter == "":
-            filter += ' '
-        filter += flt_freeSoundId
+    filter = appendQuery(filter, "tag", tag)
+    filter = appendRangeQuery(filter, "duration", duration)
+    filter = appendQuery(filter, "pack", pack)
+    filter = appendQuery(filter, "id", freeSoundId)
 
     search = {'sort':'score',
               'fields':'id,name,previews,username,url,analysis',
