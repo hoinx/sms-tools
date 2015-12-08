@@ -25,8 +25,8 @@ def download(testMode=False):
         params['topNResults'] = 1
 
 
-    params['folderName'] = 'daluo'
-    params['tag'] = '(naobo-instrument OR danao-instrument)'
+    params['folderName'] = 'xiaoluo'
+    params['tag'] = 'xiaoluo-instrument'
 
     sd.downloadFreesound(**params)
 
