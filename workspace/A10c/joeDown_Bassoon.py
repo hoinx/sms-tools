@@ -1,34 +1,35 @@
 import soundDownload as sd
 import myFreesoundKey as secret
 
-def download():
+def download(testMode=False):
 
     myOutputDir = 'joeDown'
 
-    bassoonParams = {
+    params = {
         'tag' : '',
         'duration' : (0,10),
         'API_Key' : secret.myAPI_Key,
         'outputDir' : myOutputDir,
         'topNResults' : 100,
         'featureExt' : '.json',
-        'preview' : True,
+        'preview' : False,
         'emptyDir' : False,
         'folderName' : 'bassoon',
         'pack' : '',
         'freeSoundId' : ''}
 
-    #bassoonParams['preview'] = False
-    bassoonParams['queryText'] = 'bassoon'
+    params['noDownload'] = testMode
 
-    bassoonParams['pack'] = 'Bassoon: Fortissimo and Pianissimo samples G3'
-    sd.downloadFreesound(**bassoonParams)
+    params['queryText'] = 'bassoon'
 
-    bassoonParams['pack'] = 'Bassoon: Staccato Non Vibrato C2-C4'
-    sd.downloadFreesound(**bassoonParams)
+    params['pack'] = 'Bassoon: Fortissimo and Pianissimo samples G3'
+    sd.downloadFreesound(**params)
 
-    bassoonParams['pack'] = 'Bassoon: Tenuto Non Vibrato C2-C4'
-    sd.downloadFreesound(**bassoonParams)
+    params['pack'] = 'Bassoon: Staccato Non Vibrato C2-C4'
+    sd.downloadFreesound(**params)
 
-    bassoonParams['pack'] = 'Bassoon: Tenuto Vibrato C2-C4'
-    sd.downloadFreesound(**bassoonParams)
+    params['pack'] = 'Bassoon: Tenuto Non Vibrato C2-C4'
+    sd.downloadFreesound(**params)
+
+    params['pack'] = 'Bassoon: Tenuto Vibrato C2-C4'
+    sd.downloadFreesound(**params)
