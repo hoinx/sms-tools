@@ -1,11 +1,13 @@
 import soundDownload as sd
 import myFreesoundKey as secret
 
+
+
 def download():
 
     myOutputDir = 'joeDown'
 
-    trumpetParams = {
+    params = {
         'tag' : '',
         'duration' : (0,10),
         'API_Key' : secret.myAPI_Key,
@@ -14,17 +16,17 @@ def download():
         'featureExt' : '.json',
         'preview' : True,
         'emptyDir' : False,
-        'folderName' : 'trumpet',
+        'folderName' : 'clarinet',
         'pack' : '',
         'freeSoundId' : '',
         'noDownload': False}
 
-    trumpetParams['preview'] = False
-    #trumpetParams['noDownload'] = True
+    params['preview'] = False
+    #params['noDownload'] = True
 
-    notes = ["%s%s%s" % (name, ext, oct) for name in ["C", "D", "E", "F", "G", "A", "B"] for ext in ["", "sharp"] for oct in ["4", "5"]]
+    # ["3", "4", "5"]
+    params['topNResults'] = 3
+    notes = ["%s%s%s" % (name, ext, oct) for name in ["C", "D", "E", "F", "G", "A", "B"] for ext in ["", "sharp"] for oct in ["3", "4", "5", "6"]]
     for note in notes:
-        trumpetParams['tag'] = "(%s trumpet single-note pabloproject)" % (note, )
-        sd.downloadFreesound(**trumpetParams)
-
-
+        params['tag'] = "(%s clarinet single-note pabloproject)" % (note, )
+        sd.downloadFreesound(**params)
