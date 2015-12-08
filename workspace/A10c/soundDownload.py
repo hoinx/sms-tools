@@ -125,15 +125,15 @@ def downloadFreesound(
     indCnt = 0
     totalSnds = min(qRes.count,200)   # System quits after trying to download after 200 times
 
+    print "Found %s sounds:" % (str(qRes.count), )
     if noDownload:
-        print "Found %s sounds:" % (str(qRes.count), )
         if qRes.count == 0:
             return
 
         while True:
 
             if indCnt >= totalSnds:
-                print "Done."
+                print "Not able to list required number of sounds..."
                 return
 
             sound = qRes[indCnt - ((pageNo-1)*page_size)]
@@ -141,6 +141,7 @@ def downloadFreesound(
             print "Found [id: %s], [name: %s], [url: %s], [tags: %s]" % (str(sound.id), sound.name, sound.url, tags)
 
             indCnt +=1
+            sndCnt +=1
 
             if indCnt%page_size==0:
                 qRes = qRes.next_page()
@@ -173,7 +174,7 @@ def downloadFreesound(
             break
 
         sound = qRes[indCnt - ((pageNo-1)*page_size)]
-        print "Downloading mp3 and descriptors for sound with id: %s"%str(sound.id)
+        print "Downloading mp3 and descriptors for sound with [id: %s], [name: %s], [url: %s]" % (str(sound.id), sound.name, sound.url)
         outDir1 = os.path.join(outputDir, folderName, str(sound.id))
 
         if os.path.exists(outDir1):
@@ -181,13 +182,15 @@ def downloadFreesound(
 
         os.system("mkdir " + outDir1)
 
-        mp3Path = os.path.join(outDir1, str(sound.previews.preview_lq_mp3.split("/")[-1]))
+        soundPreview = sound.previews.preview_hq_mp3
+        if preview:
+            soundPreview = sound.previews.preview_lq_mp3
+
+        mp3Path = os.path.join(outDir1, str(soundPreview.split("/")[-1]))
         ftrPath = mp3Path.replace('.mp3', featureExt)
 
         try:
-            param = {'client':fsClnt, 'path':mp3Path, 'url':sound.previews.preview_hq_mp3}
-            if preview:
-                param['url'] = sound.previews.preview_lq_mp3
+            param = {'client': fsClnt, 'path': mp3Path, 'url': soundPreview}
 
             fs.FSRequest.retrieve(**param)
 
