@@ -63,7 +63,28 @@ def doDescriptorPairScatterPlot(inputDir, descInput = (0,0), anotOn = 0):
            "showDescriptorMapping().")
 
   dataDetails = fetchDataDetails(inputDir)
-  colors = ['r', 'g', 'c', 'b', 'k', 'm', 'y']
+  #colors = ['r', 'g', 'c', 'b', 'k', 'm', 'y']
+
+
+  colors = [(0.0, 0.0, 1.0),
+    (0.0, 0.5, 0.0),
+    (1.0, 0.0, 0.0),
+    (0.0, 0.75, 0.75),
+    (0.75, 0, 0.75),
+    (0.75, 0.75, 0),
+    (0.0, 0.0, 0.25),
+    (1.0, 0.25, 1.0),
+    (0.25, 0.0, 1.0),
+    (0.25, 0.5, 0.0),
+    (1.0, 0.25, 0.0),
+    (0.25, 0.75, 0.75),
+    (0.75, 0.25, 0.75),
+    (0.75, 0.75, 0.25),
+    (0.25, 0.0, 0.25),
+    (1.0, 0.25, 1.0)]
+
+
+
   figure = plt.figure()
   plt.hold(True)
   legArray = []
