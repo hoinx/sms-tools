@@ -1,17 +1,15 @@
 import soundDownload as sd
-import myFreesoundKey as secret
+import myFreesoundConfig as conf
 
 
 
 def download():
 
-    myOutputDir = 'joeDown'
-
     params = {
         'tag' : '',
         'duration' : (0,10),
-        'API_Key' : secret.myAPI_Key,
-        'outputDir' : myOutputDir,
+        'API_Key' : conf.myAPI_Key,
+        'outputDir' : conf.myOutputDir,
         'topNResults' : 100,
         'featureExt' : '.json',
         'preview' : True,

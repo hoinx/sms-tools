@@ -1,16 +1,14 @@
 import soundDownload as sd
-import myFreesoundKey as secret
+import myFreesoundConfig as secret
 
 
 def download(testMode=False):
 
-    myOutputDir = 'joeDown'
-
     params = {
         'tag' : '',
         'duration' : (0,10),
-        'API_Key' : secret.myAPI_Key,
-        'outputDir' : myOutputDir,
+        'API_Key' : conf.myAPI_Key,
+        'outputDir' : conf.myOutputDir,
         'topNResults' : 50,
         'featureExt' : '.json',
         'preview' : False,
@@ -25,8 +23,8 @@ def download(testMode=False):
         params['topNResults'] = 1
 
 
-    params['folderName'] = 'daluo'
-    params['tag'] = 'daluo-instrument'
+    params['folderName'] = 'xiaoluo'
+    params['tag'] = 'xiaoluo-instrument'
 
     sd.downloadFreesound(**params)
 

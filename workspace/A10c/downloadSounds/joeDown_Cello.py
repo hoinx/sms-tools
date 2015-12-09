@@ -1,22 +1,20 @@
 import soundDownload as sd
-import myFreesoundKey as secret
+import myFreesoundConfig as conf
 
 
 
 def download(testMode=False):
 
-    myOutputDir = 'joeDown'
-
     params = {
         'tag' : '',
         'duration' : (0,10),
-        'API_Key' : secret.myAPI_Key,
-        'outputDir' : myOutputDir,
+        'API_Key' : conf.myAPI_Key,
+        'outputDir' : conf.myOutputDir,
         'topNResults' : 3,
         'featureExt' : '.json',
         'preview' : False,
         'emptyDir' : False,
-        'folderName' : 'flute',
+        'folderName' : 'cello',
         'pack' : '',
         'freeSoundId' : '',
         'noDownload': False}
@@ -25,7 +23,7 @@ def download(testMode=False):
 
     noteRange = ["C", "D", "E", "F", "G", "A", "B"]
     #noteRange = ["B"]
-    octaveRange = ["3", "4", "5", "6"]
+    octaveRange = ["1", "2", "3", "4", "5", "6"]
     extRange = ["", "sharp"]
 
     # ["3", "4", "5"]
@@ -34,7 +32,7 @@ def download(testMode=False):
 
     notes = ["%s%s%s" % (name, ext, oct) for oct in octaveRange for name in noteRange for ext in extRange]
     for note in notes:
-        params['tag'] = "(%s flute single-note pabloproject)" % (note, )
+        params['tag'] = "(%s cello single-note pabloproject)" % (note, )
         sd.downloadFreesound(**params)
 
 
