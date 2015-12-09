@@ -8,7 +8,7 @@ workspace/*.py*
 software/models_interface/output_sounds/*.wav
 software/transformations_interface/output_sounds/*.wav
 workspace/A10c/downloadSounds/Freesound API.txt
-workspace/A10c/downloadSounds/myFreesoundKey.py
+workspace/A10c/downloadSounds/myFreesoundConfig.py
 workspace/A10c/joeDown/*.*
 workspace/A10c/joePlot/*.*
 workspace/A9/Freesound API.txt
