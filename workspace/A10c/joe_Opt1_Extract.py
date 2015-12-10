@@ -7,34 +7,6 @@ import os, sys
 from collections import OrderedDict
 
 
-def extract_mfcc(audio):
-    w = ess.Windowing(type = 'blackmanharris62')
-    spectrum = ess.Spectrum()
-    mfcc = ess.MFCC()
-    mfccs =[]
-    audio = es.array(audio)
-    for frame in ess.FrameGenerator(audio, frameSize = 2048 , hopSize = 1024):
-        mfcc_bands, mfcc_coeffs = mfcc(spectrum(w(frame)))
-        mfccs.append(mfcc_coeffs)
-    mfccs = es.array(mfccs).T
-    return mfccs
-
-def print_mfcc(audio):
-    mfcc_frames = extract_mfcc(audio);
-    mfcc_mean = np.mean(mfcc_frames, 1)
-    mfcc_var = np.var(mfcc_frames, 1)
-    m = ",".join(["%.3f" % x for x in mfcc_mean])
-    v = ",".join(["%.3f" % x for x in mfcc_var])
-
-    print "lowlevel.mfcc.mean:" + m
-    print " lowlevel.mfcc.var:" + v
-
-
-
-
-
-
-
 def getInputFileList(inputDir, audioType = '.mp3'):
     fileList = []
     for path, dname, fnames  in os.walk(inputDir):
@@ -48,9 +20,6 @@ def getInputFileList(inputDir, audioType = '.mp3'):
         if not tuple[0] == None and not tuple[1] == None:
             fileList.append(tuple)
     return fileList
-
-
-
 
 
 def reComputeDescriptors(inputAudioFile, outputJsonFile):
@@ -93,8 +62,6 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
                                        orderBy="magnitude")
 
     dissonance = ess.Dissonance()
-
-    help(ess.PitchYinFFT)
 
     pitch_detection = ess.PitchYinFFT(frameSize=2048, sampleRate=fs)
 
@@ -141,13 +108,6 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
         ('lowlevel.mfcc.mean', [[float(f) for f in aggrPool['lowlevel.mfcc.mean']]]),
         ('lowlevel.mfcc_bands.mean', [[float(f) for f in aggrPool['lowlevel.mfcc_bands.mean']]])
     ])
-
-    """
-    features['lowlevel.dissonance.mean'] = [float(aggrPool['lowlevel.dissonance.mean'])]
-    features['sfx.inharmonicity.mean'] = [float(aggrPool['sfx.inharmonicity.mean'])]
-    features['lowlevel.mfcc.mean'] = [[float(f) for f in aggrPool['lowlevel.mfcc.mean']]]
-    features['lowlevel.mfcc_bands.mean'] = [[float(f) for f in aggrPool['lowlevel.mfcc_bands.mean']]]
-    """
 
     json.dump(features, open(outputJsonFile, 'w'))
 
