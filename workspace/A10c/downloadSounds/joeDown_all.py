@@ -11,9 +11,12 @@ import joeDown_Mridangam
 import joeDown_Daluo
 import joeDown_Xiaoluo
 
+
+joeDown_Bassoon.download()
+joeDown_Guitar.download()
+
 #joeDown_Violin.download()
 #joeDown_Guitar.download()
-#joeDown_Bassoon.download()
 #joeDown_Trumpet.download()
 #joeDown_Clarinet.download()
 #joeDown_Cello.download()

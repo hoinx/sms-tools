@@ -7,7 +7,7 @@ def download():
         'tag' : '',
         'duration' : (0,10),
         'API_Key' : conf.myAPI_Key,
-        'outputDir' : conf,
+        'outputDir' : conf.myOutputDir,
         'topNResults' : 50,
         'featureExt' : '.json',
         'preview' : True,

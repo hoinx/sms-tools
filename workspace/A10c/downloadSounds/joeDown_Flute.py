@@ -21,14 +21,12 @@ def download(testMode=False):
 
     params['noDownload'] = testMode
 
-    noteRange = ["C", "D", "E", "F", "G", "A", "B"]
-    #noteRange = ["B"]
-    octaveRange = ["3", "4", "5", "6"]
-    extRange = ["", "sharp"]
-
-    # ["3", "4", "5"]
     if testMode:
         params['topNResults'] = 1
+
+    noteRange = ["C", "D", "E", "F", "G", "A", "B"]
+    octaveRange = ["3", "4", "5", "6"]
+    extRange = ["", "sharp"]
 
     notes = ["%s%s%s" % (name, ext, oct) for oct in octaveRange for name in noteRange for ext in extRange]
     for note in notes:
