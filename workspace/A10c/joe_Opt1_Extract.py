@@ -79,6 +79,8 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
 
     log_attack_time = ess.LogAttackTime()
 
+    hfc = ess.HFC()
+
     x = ess.MonoLoader(filename=inputAudioFile, sampleRate=fs)()
     frames = ess.FrameGenerator(x, frameSize=M, hopSize=H, startFromZero=True)
     pool = es.Pool()
@@ -114,6 +116,10 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
         lat = log_attack_time(frame)
         pool.add('sfx.logattacktime', lat)
 
+        h = hfc(mX)
+        pool.add('lowlevel.hfc', h)
+
+
 
     calc_Mean_Var = ess.PoolAggregator(defaultStats=['mean', 'var'])
     aggrPool = calc_Mean_Var(pool)
@@ -125,6 +131,7 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
         ('lowlevel.spectral_centroid.mean', [float(aggrPool['lowlevel.spectral_centroid.mean'])]),
         ('lowlevel.mfcc.mean', [[float(f) for f in aggrPool['lowlevel.mfcc.mean']]]),
         ('sfx.logattacktime.mean', [float(aggrPool['sfx.logattacktime.mean'])]),
+        ('lowlevel.hfc.mean', [float(aggrPool['lowlevel.hfc.mean'])]),
         #('lowlevel.mfcc_bands.mean', [[float(f) for f in aggrPool['lowlevel.mfcc_bands.mean']]]),
     ])
 
@@ -132,8 +139,7 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
 
 
 fileList = getInputFileList('joeDown_Opt1')
-
-audioFile = fileList[0][0]
-jsonFile = fileList[0][1]
-reComputeDescriptors (audioFile, jsonFile)
-
+for ff in fileList:
+    audioFile = ff[0]
+    jsonFile = ff[1]
+    reComputeDescriptors (audioFile, jsonFile)
