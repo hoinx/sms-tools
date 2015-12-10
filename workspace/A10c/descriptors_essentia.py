@@ -50,7 +50,7 @@ descriptors = [
     (1, 'sfx.temporal_kurtosis.mean'),
     (1, 'sfx.temporal_skewness.mean'),
     (1, 'sfx.temporal_spread.mean'),
-    (1, 'sfx.tristimulus.mean'),
+    (3, 'sfx.tristimulus.mean'),
 ]
 
 

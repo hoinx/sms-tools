@@ -93,22 +93,26 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
 
 
 def updateDescriptorsInFileList(fileList):
+    num = len(fileList)
     print '-'*70
-    print "Start updating %s files" % (len(fileList), )
+    print "Start updating %s files" % (num, )
     print '-'*70
+    i = 1
     for ff in fileList:
         audioFile = ff[0]
         jsonFile = ff[1]
+        print "[", i, "/", num, "] ",
         print "Updating descriptors: ", jsonFile
         reComputeDescriptors(audioFile, jsonFile)
+        i += 1
     print "Done."
 
 
 
 
-updateDescriptorsInFileList(getInputFileList('joeDown_Opt0'))
+#updateDescriptorsInFileList(getInputFileList('joeDown_Opt0'))
 
-"""
+
 updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/bassoon'))
 updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/cello'))
 updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/clarinet'))
@@ -121,5 +125,5 @@ updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/snare_drum'))
 updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/trumpet'))
 updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/violin'))
 updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/xiaoluo'))
-"""
+
 
