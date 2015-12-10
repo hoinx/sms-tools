@@ -44,7 +44,7 @@ def downloadFreesound(
         featureExt = '.json',   preview=True,
         emptyDir=False,         folderName = '',
         pack='',                freeSoundId='',
-        noDownload=False):
+        noDownload=False,       normalizedDescriptors=True):
 
     """
     This function downloads sounds and their descriptors from freesound using the queryText and the
@@ -117,6 +117,9 @@ def downloadFreesound(
 
     if not filter == "":
         search['filter'] = filter
+
+    if not normalizedDescriptors:
+        search['normalized'] = 0
 
     qRes = fsClnt.text_search(**search) # Querying Freesound
 

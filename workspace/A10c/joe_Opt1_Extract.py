@@ -39,6 +39,7 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
     N = 1024
     H = 512
     fs = 44100
+    W = 'hann'
     """
 
     """ freesound
@@ -46,6 +47,18 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
     int frameSize =   2048;
     int hopSize =     1024;
     int zeroPadding = 0;
+
+    string silentFrames ="noise";
+    string windowType = "blackmanharris62";
+
+    // Silence Rate
+    Real thresholds_dB[] = { -20, -30, -60 };
+    vector<Real> thresholds(ARRAY_SIZE(thresholds_dB));
+    for (uint i=0; i<thresholds.size(); i++) {
+        thresholds[i] = db2lin(thresholds_dB[i]/2.0);
+    }
+
+
     """
 
     M = 2048
@@ -53,10 +66,18 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
     H = 1024
     fs = 44100
 
+    W = 'blackmanharris62'
+    #silentFrames = "noise"
+    #thresholds_dB = np.array([ -20, -30, -60 ])
+    #thresholds = np.power (10.0, thresholds_dB / 20)
 
-    spectrum = ess.Spectrum(size=N)
-    window = ess.Windowing(size=M, type='hann')
-    mfcc = ess.MFCC(numberCoefficients=12, inputSize=N/2+1)
+
+    #spectrum = ess.Spectrum(size=N)
+    spectrum = ess.Spectrum()
+    #window = ess.Windowing(size=M, type=W)
+    window = ess.Windowing(type=W)
+    #mfcc = ess.MFCC(numberCoefficients=12, inputSize=N/2+1)
+    mfcc = ess.MFCC()
 
     spectral_peaks = ess.SpectralPeaks(minFrequency=1,
                                        maxFrequency=20000,
@@ -67,13 +88,15 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
 
     dissonance = ess.Dissonance()
 
-    pitch_detection = ess.PitchYinFFT(frameSize=M, sampleRate=fs)
+    #pitch_detection = ess.PitchYinFFT(frameSize=M, sampleRate=fs)
+    pitch_detection = ess.PitchYinFFT()
 
     harmonic_peaks = ess.HarmonicPeaks()
 
     inharmonicity = ess.Inharmonicity()
 
-    spectral_contrast = ess.SpectralContrast(sampleRate=fs)
+    #spectral_contrast = ess.SpectralContrast(sampleRate=fs)
+    spectral_contrast = ess.SpectralContrast()
 
     centroid = ess.Centroid()
 
@@ -89,7 +112,7 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
         mfcc_bands, mfcc_coeffs = mfcc(mX)
 
         pool.add('lowlevel.mfcc', mfcc_coeffs)
-        pool.add('lowlevel.mfcc_bands', mfcc_bands)
+        #pool.add('lowlevel.mfcc_bands', mfcc_bands)
 
         pfreq, pmag = spectral_peaks(mX)
 
@@ -107,7 +130,7 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
             inharm = inharmonicity(phfreq, phmag)
             pool.add('sfx.inharmonicity', inharm)
 
-        sc_coeffs, sv_mag = spectral_contrast(mX)
+        sc_coeffs, sc_valleys = spectral_contrast(mX)
         pool.add('lowlevel.spectral_contrast', sc_coeffs)
 
         c = centroid(mX)
@@ -125,23 +148,23 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
     aggrPool = calc_Mean_Var(pool)
 
     features = OrderedDict([
-        ('lowlevel.dissonance.mean', [float(aggrPool['lowlevel.dissonance.var'])]),
-        ('sfx.inharmonicity.mean', [float(aggrPool['sfx.inharmonicity.var'])]),
-        ('lowlevel.spectral_contrast.mean', [[float(f) for f in aggrPool['lowlevel.spectral_contrast.var']]]),
-        ('lowlevel.spectral_centroid.mean', [float(aggrPool['lowlevel.spectral_centroid.var'])]),
-        ('lowlevel.mfcc.mean', [[float(f) for f in aggrPool['lowlevel.mfcc.var']]]),
-        ('sfx.logattacktime.mean', [float(aggrPool['sfx.logattacktime.var'])]),
-        ('lowlevel.hfc.mean', [float(aggrPool['lowlevel.hfc.var'])]),
-        ('lowlevel.mfcc_bands.mean', [[float(f) for f in aggrPool['lowlevel.mfcc_bands.var']]]),
+        ('lowlevel.dissonance.mean', [float(aggrPool['lowlevel.dissonance.mean'])]),
+        ('sfx.inharmonicity.mean', [float(aggrPool['sfx.inharmonicity.mean'])]),
+        ('lowlevel.spectral_contrast.mean', [[float(f) for f in aggrPool['lowlevel.spectral_contrast.mean']]]),
+        ('lowlevel.spectral_centroid.mean', [float(aggrPool['lowlevel.spectral_centroid.mean'])]),
+        ('lowlevel.mfcc.mean', [[float(f) for f in aggrPool['lowlevel.mfcc.mean']]]),
+        ('sfx.logattacktime.mean', [float(aggrPool['sfx.logattacktime.mean'])]),
+        ('lowlevel.hfc.mean', [float(aggrPool['lowlevel.hfc.mean'])]),
+        #('lowlevel.mfcc_bands.mean', [[float(f) for f in aggrPool['lowlevel.mfcc_bands.var']]]),
 
-        ('lowlevel.dissonance.var', [float(aggrPool['lowlevel.dissonance.var'])]),
-        ('sfx.inharmonicity.var', [float(aggrPool['sfx.inharmonicity.var'])]),
-        ('lowlevel.spectral_contrast.var', [[float(f) for f in aggrPool['lowlevel.spectral_contrast.var']]]),
-        ('lowlevel.spectral_centroid.var', [float(aggrPool['lowlevel.spectral_centroid.var'])]),
-        ('lowlevel.mfcc.var', [[float(f) for f in aggrPool['lowlevel.mfcc.var']]]),
-        ('sfx.logattacktime.var', [float(aggrPool['sfx.logattacktime.var'])]),
-        ('lowlevel.hfc.var', [float(aggrPool['lowlevel.hfc.var'])]),
-        ('lowlevel.mfcc_bands.var', [[float(f) for f in aggrPool['lowlevel.mfcc_bands.var']]]),
+        #('lowlevel.dissonance.var', [float(aggrPool['lowlevel.dissonance.var'])]),
+        #('sfx.inharmonicity.var', [float(aggrPool['sfx.inharmonicity.var'])]),
+        #('lowlevel.spectral_contrast.var', [[float(f) for f in aggrPool['lowlevel.spectral_contrast.var']]]),
+        #('lowlevel.spectral_centroid.var', [float(aggrPool['lowlevel.spectral_centroid.var'])]),
+        #('lowlevel.mfcc.var', [[float(f) for f in aggrPool['lowlevel.mfcc.var']]]),
+        #('sfx.logattacktime.var', [float(aggrPool['sfx.logattacktime.var'])]),
+        #('lowlevel.hfc.var', [float(aggrPool['lowlevel.hfc.var'])]),
+        ##('lowlevel.mfcc_bands.var', [[float(f) for f in aggrPool['lowlevel.mfcc_bands.var']]]),
     ])
 
     json.dump(features, open(outputJsonFile, 'w'))
@@ -149,20 +172,34 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
 
 
 def updateDescriptorsInFileList(fileList):
+    print '-'*70
+    print "Start updating %s files" % (len(fileList), )
+    print '-'*70
     for ff in fileList:
         audioFile = ff[0]
         jsonFile = ff[1]
         print "Updating descriptors: ", jsonFile
         reComputeDescriptors(audioFile, jsonFile)
+    print "Done."
 
 
 
 
-updateDescriptorsInFileList(getInputFileList('joeDown_Opt1'))
+updateDescriptorsInFileList(getInputFileList('joeDown_OptA'))
 
-#updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/mridangam'))
-#updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/cello'))
-#updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/daluo'))
-#updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/xiaoluo'))
+#updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/bassoon'))
 
+"""
+updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/cello'))
+updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/clarinet'))
+updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/daluo'))
+updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/flute'))
+updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/guitar'))
+updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/mridangam'))
+updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/naobo'))
+updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/snare_drum'))
+updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/trumpet'))
+updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/violin'))
+updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/xiaoluo'))
+"""
 

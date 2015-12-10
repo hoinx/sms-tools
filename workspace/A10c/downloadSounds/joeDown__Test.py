@@ -1,52 +1,52 @@
 import soundDownload as sd
 import myFreesoundConfig as conf
 
-def download(testMode=False):
 
-    """
+"""
+params = {
+    'tag' : '',
+    'duration' : (0,10),
+    'API_Key' : conf.myAPI_Key,
+    'outputDir' : '../joeTestOut',
+    'topNResults' : 1,
+    'featureExt' : '.json',
+    'preview' : False,
+    'emptyDir' : True,
+    'folderName' : '_test',
+    'pack' : '',
+    'freeSoundId' : ''}
 
-    :param testMode:
-    :return:
-    """
+params['noDownload'] = testMode
 
-    """
-    params = {
-        'tag' : '',
-        'duration' : (0,10),
-        'API_Key' : conf.myAPI_Key,
-        'outputDir' : '../joeTestOut',
-        'topNResults' : 1,
-        'featureExt' : '.json',
-        'preview' : False,
-        'emptyDir' : True,
-        'folderName' : '_test',
-        'pack' : '',
-        'freeSoundId' : ''}
+if testMode:
+    params['topNResults'] = 1
 
-    params['noDownload'] = testMode
+#params['queryText'] = 'guitar'
+#params['pack'] = 'ClassicalGuitar-multisampled'
 
-    if testMode:
-        params['topNResults'] = 1
+params['freeSoundId'] = '228622'
+sd.downloadFreesound(**params)
+"""
 
-    #params['queryText'] = 'guitar'
-    #params['pack'] = 'ClassicalGuitar-multisampled'
 
-    params['freeSoundId'] = '228622'
-    sd.downloadFreesound(**params)
-    """
+
+
+def downloadBassoon(testMode=False):
 
     params = {
         'tag' : '',
         'duration' : (0,10),
         'API_Key' : conf.myAPI_Key,
-        'outputDir' : '../joeTestOut',
+        'outputDir' : '../joeDown_Norm',
         'topNResults' : 100,
         'featureExt' : '.json',
         'preview' : False,
         'emptyDir' : False,
         'folderName' : 'bassoon',
         'pack' : '',
-        'freeSoundId' : ''}
+        'freeSoundId' : '',
+        'normalizedDescriptors': True,
+    }
 
     params['noDownload'] = testMode
 
@@ -65,8 +65,32 @@ def download(testMode=False):
     sd.downloadFreesound(**params)
 
 
+def downloadGuitar(testMode=False):
+
+    params = {
+        'tag' : '',
+        'duration' : (0,10),
+        'API_Key' : conf.myAPI_Key,
+        'outputDir' : '../joeDown_Norm',
+        'topNResults' : 50,
+        'featureExt' : '.json',
+        'preview' : True,
+        'emptyDir' : False,
+        'folderName' : 'guitar',
+        'pack' : '',
+        'freeSoundId' : '',
+        'normalizedDescriptors': True,
+    }
+
+    params['preview'] = False
+    params['queryText'] = 'guitar'
+
+    params['pack'] = 'ClassicalGuitar-multisampled'
+    sd.downloadFreesound(**params)
+
+    params['pack'] = 'acoustic_guitar'
+    sd.downloadFreesound(**params)
 
 
-
-
-download()
+downloadBassoon()
+downloadGuitar()
