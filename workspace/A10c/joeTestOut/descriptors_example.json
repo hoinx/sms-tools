@@ -1,0 +1,50 @@
+
+/*
+descriptorMapping = { 0: 'lowlevel.spectral_centroid.mean',
+                      1: 'lowlevel.dissonance.mean',
+                      2: 'lowlevel.hfc.mean',
+                      3: 'sfx.logattacktime.mean',
+                      4: 'sfx.inharmonicity.mean',
+                      5: 'lowlevel.spectral_contrast.mean.0',
+                      6: 'lowlevel.spectral_contrast.mean.1',
+                      7: 'lowlevel.spectral_contrast.mean.2',
+                      8: 'lowlevel.spectral_contrast.mean.3',
+                      9: 'lowlevel.spectral_contrast.mean.4',
+                      10: 'lowlevel.spectral_contrast.mean.5',
+                      11: 'lowlevel.mfcc.mean.0',
+                      12: 'lowlevel.mfcc.mean.1',
+                      13: 'lowlevel.mfcc.mean.2',
+                      14: 'lowlevel.mfcc.mean.3',
+                      15: 'lowlevel.mfcc.mean.4',
+                      16: 'lowlevel.mfcc.mean.5'
+                    }
+*/
+
+{
+  "lowlevel.dissonance.mean": [0.12256133556365967],
+  "sfx.inharmonicity.mean": [0.2533758878707886],
+  "lowlevel.spectral_contrast.mean": [
+    [0.7931057810783386,
+      1.1291141510009766,
+      1.098222255706787,
+      0.9608463048934937,
+      0.5757436752319336,
+      0.5357041358947754]],
+  "lowlevel.spectral_centroid.mean": [0.356711208820343],
+  "lowlevel.mfcc.mean": [
+    [0.5041042566299438,
+      0.6466076970100403,
+      0.40175551176071167,
+      0.05143323540687561,
+      0.13472917675971985,
+      0.3195274770259857,
+      0.24790433049201965,
+      0.2585009038448334,
+      0.46443456411361694,
+      0.371412068605423,
+      0.3047017455101013,
+      0.32832157611846924,
+      0.4311564564704895]],
+  "sfx.logattacktime.mean": [0.6058516502380371],
+  "lowlevel.hfc.mean": [0.5000197887420654]
+}
