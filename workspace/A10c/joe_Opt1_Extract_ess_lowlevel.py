@@ -162,28 +162,37 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
     pool = es.Pool()
     esx.compute(audio, pool, options)
 
+    output = ess.YamlOutput(filename='joeTestOut/essExtract_Pool.json', format='json')
+    output (pool)
 
     calc_Mean_Var = ess.PoolAggregator(defaultStats=['mean', 'var'])
     aggrPool = calc_Mean_Var(pool)
 
-    features = OrderedDict([
-        ('lowlevel.dissonance.mean', [float(aggrPool['lowlevel.dissonance.var'])]),
-        ('sfx.inharmonicity.mean', [float(aggrPool['sfx.inharmonicity.var'])]),
-        ('lowlevel.spectral_contrast.mean', [[float(f) for f in aggrPool['lowlevel.spectral_contrast.var']]]),
-        ('lowlevel.spectral_centroid.mean', [float(aggrPool['lowlevel.spectral_centroid.var'])]),
-        ('lowlevel.mfcc.mean', [[float(f) for f in aggrPool['lowlevel.mfcc.var']]]),
-        ('sfx.logattacktime.mean', [float(aggrPool['sfx.logattacktime.var'])]),
-        ('lowlevel.hfc.mean', [float(aggrPool['lowlevel.hfc.var'])]),
-        #('lowlevel.mfcc_bands.mean', [[float(f) for f in aggrPool['lowlevel.mfcc_bands.var']]]),
+    output = ess.YamlOutput(filename='joeTestOut/essExtract_AggrPool.json', format='json')
+    output (aggrPool)
 
-        ('lowlevel.dissonance.var', [float(aggrPool['lowlevel.dissonance.var'])]),
-        ('sfx.inharmonicity.var', [float(aggrPool['sfx.inharmonicity.var'])]),
-        ('lowlevel.spectral_contrast.var', [[float(f) for f in aggrPool['lowlevel.spectral_contrast.var']]]),
-        ('lowlevel.spectral_centroid.var', [float(aggrPool['lowlevel.spectral_centroid.var'])]),
-        ('lowlevel.mfcc.var', [[float(f) for f in aggrPool['lowlevel.mfcc.var']]]),
-        ('sfx.logattacktime.var', [float(aggrPool['sfx.logattacktime.var'])]),
-        ('lowlevel.hfc.var', [float(aggrPool['lowlevel.hfc.var'])]),
-        #('lowlevel.mfcc_bands.var', [[float(f) for f in aggrPool['lowlevel.mfcc_bands.var']]]),
+    features = OrderedDict([
+        ('lowlevel.dissonance.mean', [float(aggrPool['lowlevel.dissonance.mean'])]),
+        #('sfx.inharmonicity.mean', [float(aggrPool['sfx.inharmonicity.mean'])]),
+        ('lowlevel.spectral_contrast.mean', [[float(f) for f in aggrPool['lowlevel.spectral_contrast.mean']]]),
+        ('lowlevel.spectral_centroid.mean', [float(aggrPool['lowlevel.spectral_centroid.mean'])]),
+        ('lowlevel.mfcc.mean', [[float(f) for f in aggrPool['lowlevel.mfcc.mean']]]),
+        #('sfx.logattacktime.mean', [float(aggrPool['sfx.logattacktime.mean'])]),
+        ('lowlevel.hfc.mean', [float(aggrPool['lowlevel.hfc.mean'])]),
+
+
+        ##('lowlevel.mfcc_bands.mean', [[float(f) for f in aggrPool['lowlevel.mfcc_bands.mean']]]),
+
+        #('lowlevel.dissonance.var', [float(aggrPool['lowlevel.dissonance.var'])]),
+        ##('sfx.inharmonicity.var', [float(aggrPool['sfx.inharmonicity.var'])]),
+        #('lowlevel.spectral_contrast.var', [[float(f) for f in aggrPool['lowlevel.spectral_contrast.var']]]),
+        #('lowlevel.spectral_centroid.var', [float(aggrPool['lowlevel.spectral_centroid.var'])]),
+        #('lowlevel.mfcc.var', [[float(f) for f in aggrPool['lowlevel.mfcc.var']]]),
+        ##('sfx.logattacktime.var', [float(aggrPool['sfx.logattacktime.var'])]),
+        #('lowlevel.hfc.var', [float(aggrPool['lowlevel.hfc.var'])]),
+
+        ##('lowlevel.mfcc_bands.var', [[float(f) for f in aggrPool['lowlevel.mfcc_bands.var']]]),
+
     ])
 
     json.dump(features, open(outputJsonFile, 'w'))

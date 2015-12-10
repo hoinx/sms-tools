@@ -17,7 +17,6 @@
 
 import essentia.standard as ess
 import essentia as es
-
 from essentia.progress import Progress
 # convenience function to get descriptor names from the pool without being
 # prepended by the namespace
@@ -31,67 +30,69 @@ dependencies = None
 
 
 def is_silent_threshold(frame, silence_threshold_dB):
-    p = es.instantPower( frame )
+    p = es.instantPower(frame)
     silence_threshold = pow(10.0, (silence_threshold_dB / 10.0))
     if p < silence_threshold:
-       return 1.0
+        return 1.0
     else:
-       return 0.0
+        return 0.0
+
 
 def spectralContrastPCA(scPool, pool):
-    scCoeffs = scPool.value('lowlevel.sccoeffs')
-    scValleys = scPool.value('lowlevel.scvalleys')
+    scCoeffs = scPool['lowlevel.sccoeffs']
+    scValleys = scPool['lowlevel.scvalleys']
     frames = len(scCoeffs)
     coeffs = len(scCoeffs[0])
-    #merged = numpy.zeros([frames, coeffs], dtype='f4')
-    merged = numpy.zeros(2*coeffs, dtype='f4')
+    # merged = numpy.zeros([frames, coeffs], dtype='f4')
+    merged = numpy.zeros(2 * coeffs, dtype='f4')
     for i in range(frames):
         k = 0
         for j in range(coeffs):
             merged[k] = scCoeffs[i][j]
-            merged[k+1] = scValleys[i][j]
-            k+= 2
+            merged[k + 1] = scValleys[i][j]
+            k += 2
         scPool.add('contrast', merged)
-    pca = ess.PCA(namespaceIn = 'contrast', namespaceOut = 'contrast')(scPool)
-    pool.add(namespace + '.' + 'spectral_contrast', pca.value('contrast'))
+    pca = ess.PCA(namespaceIn='contrast', namespaceOut='contrast')(scPool)
+    pool.add(namespace + '.' + 'spectral_contrast', [c[:] for c in pca['contrast']])
+
 
 def compute(audio, pool, options):
-
     # analysis parameters
     sampleRate = options['sampleRate']
-    frameSize  = options['frameSize']
-    hopSize    = options['hopSize']
+    frameSize = options['frameSize']
+    hopSize = options['hopSize']
     windowType = options['windowType']
 
     # temporal descriptors
-    lpc = ess.LPC(order = 10, type = 'warped', sampleRate = sampleRate)
+    lpc = ess.LPC(order=10, type='warped', sampleRate=sampleRate)
     zerocrossingrate = ess.ZeroCrossingRate()
 
     # frame algorithms
-    frames = ess.FrameGenerator(audio = audio, frameSize = frameSize, hopSize = hopSize)
-    window = ess.Windowing(size = frameSize, zeroPadding = 0, type = windowType)
-    spectrum = ess.Spectrum(size = frameSize)
+    frames = ess.FrameGenerator(audio=audio, frameSize=frameSize, hopSize=hopSize)
+    window = ess.Windowing(size=frameSize, zeroPadding=0, type=windowType)
+    spectrum = ess.Spectrum(size=frameSize)
 
     # spectral algorithms
-    barkbands = ess.BarkBands(sampleRate = sampleRate)
+    barkbands = ess.BarkBands(sampleRate=sampleRate)
     centralmoments = ess.CentralMoments()
     crest = ess.Crest()
     centroid = ess.Centroid()
     decrease = ess.Decrease()
-    spectral_contrast = ess.SpectralContrast(frameSize = frameSize,
-                                                  sampleRate = sampleRate,
-                                                  numberBands = 6,
-                                                  lowFrequencyBound = 20,
-                                                  highFrequencyBound = 11000,
-                                                  neighbourRatio = 0.4,
-                                                  staticDistribution = 0.15)
+    spectral_contrast = ess.SpectralContrast(frameSize=frameSize,
+                                             sampleRate=sampleRate,
+                                             numberBands=6,
+                                             lowFrequencyBound=20,
+                                             highFrequencyBound=11000,
+                                             neighbourRatio=0.4,
+                                             staticDistribution=0.15)
     distributionshape = ess.DistributionShape()
     energy = ess.Energy()
     # energyband_bass, energyband_middle and energyband_high parameters come from "standard" hi-fi equalizers
-    energyband_bass = ess.EnergyBand(startCutoffFrequency = 20.0, stopCutoffFrequency = 150.0, sampleRate = sampleRate)
-    energyband_middle_low = ess.EnergyBand(startCutoffFrequency = 150.0, stopCutoffFrequency = 800.0, sampleRate = sampleRate)
-    energyband_middle_high = ess.EnergyBand(startCutoffFrequency = 800.0, stopCutoffFrequency = 4000.0, sampleRate = sampleRate)
-    energyband_high = ess.EnergyBand(startCutoffFrequency = 4000.0, stopCutoffFrequency = 20000.0, sampleRate = sampleRate)
+    energyband_bass = ess.EnergyBand(startCutoffFrequency=20.0, stopCutoffFrequency=150.0, sampleRate=sampleRate)
+    energyband_middle_low = ess.EnergyBand(startCutoffFrequency=150.0, stopCutoffFrequency=800.0, sampleRate=sampleRate)
+    energyband_middle_high = ess.EnergyBand(startCutoffFrequency=800.0, stopCutoffFrequency=4000.0,
+                                            sampleRate=sampleRate)
+    energyband_high = ess.EnergyBand(startCutoffFrequency=4000.0, stopCutoffFrequency=20000.0, sampleRate=sampleRate)
     flatnessdb = ess.FlatnessDB()
     flux = ess.Flux()
     harmonic_peaks = ess.HarmonicPeaks()
@@ -102,45 +103,45 @@ def compute(audio, pool, options):
     strongpeak = ess.StrongPeak()
 
     # pitch algorithms
-    pitch_detection = ess.PitchYinFFT(frameSize = frameSize, sampleRate = sampleRate)
+    pitch_detection = ess.PitchYinFFT(frameSize=frameSize, sampleRate=sampleRate)
     pitch_salience = ess.PitchSalience()
 
     # dissonance
-    spectral_peaks = ess.SpectralPeaks(sampleRate = sampleRate, orderBy='frequency')
+    spectral_peaks = ess.SpectralPeaks(sampleRate=sampleRate, orderBy='frequency')
     dissonance = ess.Dissonance()
 
     # spectral complexity
     # magnitudeThreshold = 0.005 is hardcoded for a "blackmanharris62" frame
-    spectral_complexity = ess.SpectralComplexity(magnitudeThreshold = 0.005)
+    spectral_complexity = ess.SpectralComplexity(magnitudeThreshold=0.005)
 
     INFO('Computing Low-Level descriptors...')
 
     # used for a nice progress display
     total_frames = frames.num_frames()
     n_frames = 0
-    start_of_frame = -frameSize*0.5
+    start_of_frame = -frameSize * 0.5
 
-    pitches, pitch_confidences =  [],[]
+    pitches, pitch_confidences = [], []
 
-    progress = Progress(total = total_frames)
+    progress = Progress(total=total_frames)
 
-    scPool = es.Pool() # pool for spectral contrast
+    #scPool = es.Pool()  # pool for spectral contrast
 
     for frame in frames:
 
-        frameScope = [ start_of_frame / sampleRate, (start_of_frame + frameSize) / sampleRate ]
-        #pool.setCurrentScope(frameScope)
+        frameScope = [start_of_frame / sampleRate, (start_of_frame + frameSize) / sampleRate]
+        # pool.setCurrentScope(frameScope)
 
         # silence rate
-        #pool.add(namespace + '.' + 'silence_rate_60dB', es.isSilent(frame))
+        # pool.add(namespace + '.' + 'silence_rate_60dB', es.isSilent(frame))
         pool.add(namespace + '.' + 'silence_rate_60dB', is_silent_threshold(frame, -60))
         pool.add(namespace + '.' + 'silence_rate_30dB', is_silent_threshold(frame, -30))
         pool.add(namespace + '.' + 'silence_rate_20dB', is_silent_threshold(frame, -20))
 
         if options['skipSilence'] and es.isSilent(frame):
-          total_frames -= 1
-          start_of_frame += hopSize
-          continue
+            total_frames -= 1
+            start_of_frame += hopSize
+            continue
 
         # temporal descriptors
         pool.add(namespace + '.' + 'zerocrossingrate', zerocrossingrate(frame))
@@ -165,14 +166,14 @@ def compute(audio, pool, options):
         pool.add(namespace + '.' + 'spectral_rolloff', rolloff(frame_spectrum))
         pool.add(namespace + '.' + 'spectral_strongpeak', strongpeak(frame_spectrum))
 
-	# central moments descriptors
-	frame_centralmoments = centralmoments(power_spectrum)
+        # central moments descriptors
+        frame_centralmoments = centralmoments(power_spectrum)
         (frame_spread, frame_skewness, frame_kurtosis) = distributionshape(frame_centralmoments)
         pool.add(namespace + '.' + 'spectral_kurtosis', frame_kurtosis)
-	pool.add(namespace + '.' + 'spectral_spread', frame_spread)
+        pool.add(namespace + '.' + 'spectral_spread', frame_spread)
         pool.add(namespace + '.' + 'spectral_skewness', frame_skewness)
 
-	# dissonance
+        # dissonance
         (frame_frequencies, frame_magnitudes) = spectral_peaks(frame_spectrum)
         frame_dissonance = dissonance(frame_frequencies, frame_magnitudes)
         pool.add(namespace + '.' + 'dissonance', frame_dissonance)
@@ -183,16 +184,19 @@ def compute(audio, pool, options):
 
         # spectral contrast
         (sc_coeffs, sc_valleys) = spectral_contrast(frame_spectrum)
-        scPool.add(namespace + '.' + 'sccoeffs', sc_coeffs)
-        scPool.add(namespace + '.' + 'scvalleys', sc_valleys)
+        #scPool.add(namespace + '.' + 'sccoeffs', sc_coeffs)
+        #scPool.add(namespace + '.' + 'scvalleys', sc_valleys)
+        pool.add(namespace + '.' + 'spectral_contrast', sc_coeffs)
+
 
         # barkbands-based descriptors
         frame_barkbands = barkbands(frame_spectrum)
         pool.add(namespace + '.' + 'barkbands', frame_barkbands)
         pool.add(namespace + '.' + 'spectral_crest', crest(frame_barkbands))
         pool.add(namespace + '.' + 'spectral_flatness_db', flatnessdb(frame_barkbands))
-        barkbands_centralmoments = ess.CentralMoments(range = len(frame_barkbands) - 1)
-        (barkbands_spread, barkbands_skewness, barkbands_kurtosis) = distributionshape(barkbands_centralmoments(frame_barkbands))
+        barkbands_centralmoments = ess.CentralMoments(range=len(frame_barkbands) - 1)
+        (barkbands_spread, barkbands_skewness, barkbands_kurtosis) = distributionshape(
+            barkbands_centralmoments(frame_barkbands))
         pool.add(namespace + '.' + 'barkbands_spread', barkbands_spread)
         pool.add(namespace + '.' + 'barkbands_skewness', barkbands_skewness)
         pool.add(namespace + '.' + 'barkbands_kurtosis', barkbands_kurtosis)
@@ -221,7 +225,7 @@ def compute(audio, pool, options):
     if 'zerocrossingrate' not in descriptorNames(pool.descriptorNames(), namespace):
         raise ess.EssentiaError('This is a silent file!')
 
-    spectralContrastPCA(scPool, pool)
+    #spectralContrastPCA(scPool, pool)
 
     # build pitch value histogram
     from math import log
@@ -231,33 +235,34 @@ def compute(audio, pool, options):
     unknown = 0
     for freq in pitches:
         if freq > 0. and freq <= 12600:
-            midipitches.append(12*(log(freq/6.875)/0.69314718055995)-3.)
+            midipitches.append(12 * (log(freq / 6.875) / 0.69314718055995) - 3.)
         else:
             unknown += 1
 
     if len(midipitches) > 0:
-      # compute histogram
-      midipitchhist = bincount(midipitches)
-      # set 0 midi pitch to be the number of pruned value
-      midipitchhist[0] = unknown
-      # normalise
-      midipitchhist = [val/float(sum(midipitchhist)) for val in midipitchhist]
-      # zero pad
-      for i in range(128 - len(midipitchhist)): midipitchhist.append(0.0)
+        # compute histogram
+        midipitchhist = bincount(midipitches)
+        # set 0 midi pitch to be the number of pruned value
+        midipitchhist[0] = unknown
+        # normalise
+        midipitchhist = [val / float(sum(midipitchhist)) for val in midipitchhist]
+        # zero pad
+        for i in range(128 - len(midipitchhist)): midipitchhist.append(0.0)
     else:
-      midipitchhist = [0.]*128
-      midipitchhist[0] = 1.
+        midipitchhist = [0.] * 128
+        midipitchhist[0] = 1.
 
     # pitchhist = ess.array(zip(range(len(midipitchhist)), midipitchhist))
-    pool.add(namespace + '.' + 'spectral_pitch_histogram', midipitchhist)#, pool.GlobalScope)
+    pool.add(namespace + '.' + 'spectral_pitch_histogram', midipitchhist)  # , pool.GlobalScope)
 
     # the code below is the same as the one above:
-    #for note in midipitchhist:
+    # for note in midipitchhist:
     #    pool.add(namespace + '.' + 'spectral_pitch_histogram_values', note)
     #    print "midi note:", note
 
-    pitch_centralmoments = ess.CentralMoments(range = len(midipitchhist) - 1)
-    (pitch_histogram_spread, pitch_histogram_skewness, pitch_histogram_kurtosis) = distributionshape(pitch_centralmoments(midipitchhist))
-    pool.add(namespace + '.' + 'spectral_pitch_histogram_spread', pitch_histogram_spread)#, pool.GlobalScope)
+    pitch_centralmoments = ess.CentralMoments(range=len(midipitchhist) - 1)
+    (pitch_histogram_spread, pitch_histogram_skewness, pitch_histogram_kurtosis) = distributionshape(
+        pitch_centralmoments(midipitchhist))
+    pool.add(namespace + '.' + 'spectral_pitch_histogram_spread', pitch_histogram_spread)  # , pool.GlobalScope)
 
     progress.finish()
