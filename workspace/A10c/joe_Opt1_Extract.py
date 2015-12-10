@@ -30,6 +30,10 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
     :return:
     """
 
+    #help(ess.SpectralContrast)
+
+
+
     """ orig
     M = 1024
     N = 1024
@@ -63,13 +67,13 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
 
     dissonance = ess.Dissonance()
 
-    pitch_detection = ess.PitchYinFFT(frameSize=2048, sampleRate=fs)
+    pitch_detection = ess.PitchYinFFT(frameSize=M, sampleRate=fs)
 
     harmonic_peaks = ess.HarmonicPeaks()
 
     inharmonicity = ess.Inharmonicity()
 
-
+    spectral_contrast = ess.SpectralContrast(sampleRate=fs)
 
 
     x = ess.MonoLoader(filename=inputAudioFile, sampleRate=fs)()
@@ -98,6 +102,9 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
             inharm = inharmonicity(phfreq, phmag)
             pool.add('sfx.inharmonicity', inharm)
 
+        sc_coeffs, sv_mag = spectral_contrast(mX)
+        pool.add('lowlevel.spectral_contrast', sc_coeffs)
+
 
     calc_Mean_Var = ess.PoolAggregator(defaultStats=['mean', 'var'])
     aggrPool = calc_Mean_Var(pool)
@@ -105,6 +112,7 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
     features = OrderedDict([
         ('lowlevel.dissonance.mean', [float(aggrPool['lowlevel.dissonance.mean'])]),
         ('sfx.inharmonicity.mean', [float(aggrPool['sfx.inharmonicity.mean'])]),
+        ('lowlevel.spectral_contrast.mean', [[float(f) for f in aggrPool['lowlevel.spectral_contrast.mean']]]),
         ('lowlevel.mfcc.mean', [[float(f) for f in aggrPool['lowlevel.mfcc.mean']]]),
         ('lowlevel.mfcc_bands.mean', [[float(f) for f in aggrPool['lowlevel.mfcc_bands.mean']]])
     ])
