@@ -21,8 +21,10 @@ def download(testMode=False):
     if testMode:
         params['topNResults'] = 1
 
-    params['queryText'] = 'guitar'
-    params['pack'] = 'ClassicalGuitar-multisampled'
+    #params['queryText'] = 'guitar'
+    #params['pack'] = 'ClassicalGuitar-multisampled'
+
+    params['freeSoundId'] = '228622'
     sd.downloadFreesound(**params)
 
 download()
