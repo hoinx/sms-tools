@@ -76,16 +76,16 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
     sfx.compute(audio, pool, options)
     esx.compute(audio, pool, options)
 
-    output = ess.YamlOutput(filename='joeTestOut/essExtract_Pool.json', format='json')
-    output(pool)
+    #output = ess.YamlOutput(filename='joeTestOut/essExtract_Pool.json', format='json')
+    #output(pool)
 
     #calc_Mean_Var = ess.PoolAggregator(defaultStats=['mean', 'var'])
     calc_Mean_Var = ess.PoolAggregator(defaultStats=['mean'])
     aggrPool = calc_Mean_Var(pool)
 
-    output = ess.YamlOutput(filename='joeTestOut/essExtract_AggrPool.json', format='json')
+    #output = ess.YamlOutput(filename='joeTestOut/essExtract_AggrPool.json', format='json')
     #output = ess.YamlOutput(filename=outputJsonFile, format='json')
-    output(aggrPool)
+    #output(aggrPool)
 
     features = makeFeatures(aggrPool)
     json.dump(features, open(outputJsonFile, 'w'))
