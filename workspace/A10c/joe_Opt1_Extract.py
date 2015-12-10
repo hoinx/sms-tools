@@ -77,6 +77,8 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
 
     centroid = ess.Centroid()
 
+    log_attack_time = ess.LogAttackTime()
+
     x = ess.MonoLoader(filename=inputAudioFile, sampleRate=fs)()
     frames = ess.FrameGenerator(x, frameSize=M, hopSize=H, startFromZero=True)
     pool = es.Pool()
@@ -109,8 +111,8 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
         c = centroid(mX)
         pool.add('lowlevel.spectral_centroid', c)
 
-
-
+        lat = log_attack_time(frame)
+        pool.add('sfx.logattacktime', lat)
 
 
     calc_Mean_Var = ess.PoolAggregator(defaultStats=['mean', 'var'])
@@ -122,6 +124,7 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
         ('lowlevel.spectral_contrast.mean', [[float(f) for f in aggrPool['lowlevel.spectral_contrast.mean']]]),
         ('lowlevel.spectral_centroid.mean', [float(aggrPool['lowlevel.spectral_centroid.mean'])]),
         ('lowlevel.mfcc.mean', [[float(f) for f in aggrPool['lowlevel.mfcc.mean']]]),
+        ('sfx.logattacktime.mean', [float(aggrPool['sfx.logattacktime.mean'])]),
         #('lowlevel.mfcc_bands.mean', [[float(f) for f in aggrPool['lowlevel.mfcc_bands.mean']]]),
     ])
 
