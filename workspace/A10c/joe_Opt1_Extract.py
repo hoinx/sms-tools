@@ -75,6 +75,7 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
 
     spectral_contrast = ess.SpectralContrast(sampleRate=fs)
 
+    centroid = ess.Centroid()
 
     x = ess.MonoLoader(filename=inputAudioFile, sampleRate=fs)()
     frames = ess.FrameGenerator(x, frameSize=M, hopSize=H, startFromZero=True)
@@ -105,6 +106,12 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
         sc_coeffs, sv_mag = spectral_contrast(mX)
         pool.add('lowlevel.spectral_contrast', sc_coeffs)
 
+        c = centroid(mX)
+        pool.add('lowlevel.spectral_centroid', c)
+
+
+
+
 
     calc_Mean_Var = ess.PoolAggregator(defaultStats=['mean', 'var'])
     aggrPool = calc_Mean_Var(pool)
@@ -113,8 +120,9 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
         ('lowlevel.dissonance.mean', [float(aggrPool['lowlevel.dissonance.mean'])]),
         ('sfx.inharmonicity.mean', [float(aggrPool['sfx.inharmonicity.mean'])]),
         ('lowlevel.spectral_contrast.mean', [[float(f) for f in aggrPool['lowlevel.spectral_contrast.mean']]]),
+        ('lowlevel.spectral_centroid.mean', [float(aggrPool['lowlevel.spectral_centroid.mean'])]),
         ('lowlevel.mfcc.mean', [[float(f) for f in aggrPool['lowlevel.mfcc.mean']]]),
-        ('lowlevel.mfcc_bands.mean', [[float(f) for f in aggrPool['lowlevel.mfcc_bands.mean']]])
+        #('lowlevel.mfcc_bands.mean', [[float(f) for f in aggrPool['lowlevel.mfcc_bands.mean']]]),
     ])
 
     json.dump(features, open(outputJsonFile, 'w'))
