@@ -32,9 +32,7 @@ descriptors = [
     (10, 'lowlevel.barkbands.mean'),
     (12, 'lowlevel.mfcc.mean'),
     (6, 'lowlevel.spectral_contrast.mean'),
-
     #(10, 'lowlevel.temporal_lpc.mean'),
-
     (1, 'sfx.der_av_after_max.mean'),
     (1, 'sfx.effective_duration.mean'),
     (1, 'sfx.flatness.mean'),
@@ -42,7 +40,7 @@ descriptors = [
     (1, 'sfx.logattacktime.mean'),
     (1, 'sfx.max_der_before_max.mean'),
     (1, 'sfx.max_to_total.mean'),
-    (1, 'sfx.odd2evenharmonicenergyratio.mean'),
+    #(1, 'sfx.odd2evenharmonicenergyratio.mean'),
     (1, 'sfx.strongdecay.mean'),
     (1, 'sfx.tc_to_total.mean'),
     (1, 'sfx.temporal_centroid.mean'),

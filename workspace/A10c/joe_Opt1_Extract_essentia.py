@@ -9,6 +9,8 @@ from collections import OrderedDict
 import lowlevel as esx
 import sfx
 
+import descriptors_essentia
+
 def getInputFileList(inputDir, audioType = '.mp3'):
     fileList = []
     for path, dname, fnames  in os.walk(inputDir):
@@ -29,8 +31,6 @@ def fromPoolOne (pool, desc):
 
 def fromPoolMany (pool, desc):
     return desc, [[float(f) for f in pool[desc]]]
-
-import descriptors_essentia
 
 def makeFeatures(pool):
     features = {}

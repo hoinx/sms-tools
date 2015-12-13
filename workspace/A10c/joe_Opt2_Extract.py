@@ -23,17 +23,16 @@ def getInputFileList(inputDir, audioType = '.mp3'):
     return fileList
 
 
-def makeFeatures(pool):
-    features = {}
+def appendFeatures(features, pool, namespace):
     for d in dscr.descriptors:
         desc = d[1]
+        if not pool.containsKey(desc):
+            continue
         num = d[0]
         if num == 1:
-            features[desc] = [float(pool[desc])]
+            features[namespace + "." + desc] = [float(pool[desc])]
         elif num > 1:
-            features[desc] = [[float(f) for f in pool[desc]]]
-    return features
-
+            features[namespace + "." + desc] = [[float(f) for f in pool[desc]]]
 
 
 def reComputeDescriptors(inputAudioFile, outputJsonFile):
@@ -122,13 +121,37 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
 
     x = ess.MonoLoader(filename=inputAudioFile, sampleRate=fs)()
     frames = ess.FrameGenerator(x, frameSize=M, hopSize=H, startFromZero=True)
-    pool = es.Pool()
+
+    eps = np.finfo(float).eps
+    threshold = [eps, 0.0001, 0.001, 0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 0.9, 0.95, 0.98, 0.99, 0.999, 0.9999, 1-eps]
+
+
+    E = []
+    numFrames = 0
     for frame in frames:
+        numFrames += 1
+        E_frame = energy(frame)
+        E.append(E_frame)
+
+    E_max = np.max(E)
+
+    frames = ess.FrameGenerator(x, frameSize=M, hopSize=H, startFromZero=True)
+
+    pools = [(t, es.Pool()) for t in threshold]
+    for frame in frames:
+
+        eNorm = energy(frame) / E_max
+
+        threshPools = []
+        for t, pool in pools:
+            if eNorm >= t:
+                threshPools.append(pool)
+
         mX = spectrum(window(frame))
         mfcc_bands, mfcc_coeffs = mfcc(mX)
 
-        pool.add('lowlevel.mfcc', mfcc_coeffs)
-        pool.add('lowlevel.mfcc_bands', mfcc_bands)
+        [pool.add('lowlevel.mfcc', mfcc_coeffs) for pool in threshPools]
+        [pool.add('lowlevel.mfcc_bands', mfcc_bands) for pool in threshPools]
 
         pfreq, pmag = spectral_peaks(mX)
 
@@ -137,33 +160,34 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
         pmag_sorted = pmag[inds]
 
         diss = dissonance(pfreq_sorted, pmag_sorted)
-        pool.add('lowlevel.dissonance', diss)
+        [pool.add('lowlevel.dissonance', diss) for pool in threshPools]
 
         pitch, pitch_confidence = pitch_detection(mX)
 
         phfreq, phmag = harmonic_peaks(pfreq_sorted, pmag_sorted, pitch)
         if len(phfreq) > 1:
             inharm = inharmonicity(phfreq, phmag)
-            pool.add('sfx.inharmonicity', inharm)
+            [pool.add('sfx.inharmonicity', inharm) for pool in threshPools]
 
         sc_coeffs, sc_valleys = spectral_contrast(mX)
-        pool.add('lowlevel.spectral_contrast', sc_coeffs)
+        [pool.add('lowlevel.spectral_contrast', sc_coeffs) for pool in threshPools]
 
         c = centroid(mX)
-        pool.add('lowlevel.spectral_centroid', c)
+        [pool.add('lowlevel.spectral_centroid', c) for pool in threshPools]
 
         lat = log_attack_time(frame)
-        pool.add('sfx.logattacktime', lat)
+        [pool.add('sfx.logattacktime', lat) for pool in threshPools]
 
         h = hfc(mX)
-        pool.add('lowlevel.hfc', h)
+        [pool.add('lowlevel.hfc', h) for pool in threshPools]
 
 
 
     calc_Mean_Var = ess.PoolAggregator(defaultStats=['mean', 'var'])
-    aggrPool = calc_Mean_Var(pool)
+    aggrPools = [calc_Mean_Var(pool) for t, pool in pools]
 
-    features = makeFeatures(aggrPool)
+    features = {}
+    [appendFeatures(features, aggrPools[i], ("ethc"+str(i))) for i in range(len(aggrPools))]
     json.dump(features, open(outputJsonFile, 'w'))
 
 
@@ -181,7 +205,9 @@ def updateDescriptorsInFileList(fileList):
 
 #updateDescriptorsInFileList(getInputFileList('joeDown_OptA'))
 
+
 updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/bassoon'))
+updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/guitar'))
 updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/cello'))
 updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/clarinet'))
 updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/daluo'))
@@ -193,5 +219,4 @@ updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/snare_drum'))
 updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/trumpet'))
 updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/violin'))
 updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/xiaoluo'))
-
 

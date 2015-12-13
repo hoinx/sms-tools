@@ -6,9 +6,11 @@ import json
 from scipy.cluster.vq import vq, kmeans, whiten
 # from scipy.stats import mode
 
-import descriptors_essentia as dscrpt
+descriptorMapping = None
 
-descriptorMapping = dscrpt.getDescriptorMapping()
+def setDescriptorMapping(dMap):
+    global descriptorMapping
+    descriptorMapping = dMap
 
 
 def showDescriptorMapping():
@@ -290,6 +292,11 @@ def doClusterSounds(targetDir, nCluster = -1, descInput=[]):
     freqCnt = []
     for elem in infoArr[ind,1]:
       freqCnt.append(infoArr[ind,1].tolist().count(elem))
+
+    if len(freqCnt) == 0:
+      print "Error in doClusterSounds, ii = ", ii
+      continue
+
     indMax = np.argmax(freqCnt)
     classCluster.append(infoArr[ind,1][indMax])
 
