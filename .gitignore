@@ -5,9 +5,11 @@
 *.py~
 workspace_dev/*
 workspace/*.py*
+workspace_joe/*
+workspace_joe/A9/Freesound API.txt
+workspace_joe/A9/myFreesoundKey.py
 software/models_interface/output_sounds/*.wav
 software/transformations_interface/output_sounds/*.wav
-workspace_joe/*
 workspace/A10c/downloadSounds/Freesound API.txt
 workspace/A10c/downloadSounds/myFreesoundConfig.py
 workspace/A10c/joeDown*/*
