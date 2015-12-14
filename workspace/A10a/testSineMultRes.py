@@ -6,6 +6,7 @@ from scipy.signal import get_window
 import matplotlib.pyplot as plt
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../software/models/'))
+
 import utilFunctions as UF
 import harmonicModel as HM
 import sineModelMultiRes as SMMR
@@ -50,5 +51,9 @@ M = [1023, 2047, 4095]
 #computeModel ('../../sounds/speech-female.wav')
 #computeModel ('../../sounds/impulse-response.wav')
 
-#computeModel ('sounds/64961__experimental-illness_remaster.wav', B, M, 'hanning', -90)
-computeModel ('sounds/81200__milton__maria_snippet.wav', B, M, 'hanning', -90)
+#computeModel ('sounds/8107_dobroide_L.wav', B, M, 'hanning', -90)
+
+computeModel ('sounds/76233_tito_lahaye_L.wav', B, M, 'hanning', -90)
+
+
+

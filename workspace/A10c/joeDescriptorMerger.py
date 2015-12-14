@@ -50,16 +50,23 @@ def mergeDescriptors(fileList_in_A, namespace_A, fileList_in_B, namespace_B, fil
         fDict_out = {}
 
         for key, value in fDict_A.iteritems():
-            fDict_out[namespace_A + "." + key] = value
+            if not namespace_A == None:
+                fDict_out[namespace_A + "." + key] = value
+            else:
+                fDict_out[key] = value
+
 
         for key, value in fDict_B.iteritems():
-            fDict_out[namespace_B + "." + key] = value
+            if not namespace_B == None:
+                fDict_out[namespace_B + "." + key] = value
+            else:
+                fDict_out[key] = value
 
         json.dump(fDict_out, open(jsonFile_out, 'w'))
 
 
-a = getFileList('joeDesc_freesound_Norm')
-b = getFileList('joeDesc_essentia')
-out = getFileList('joeDesc_All')
+a = getFileList('joeDesc_All')
+b = getFileList('joeDown_Opt1')
+out = getFileList('joeDesc_All2')
 
-mergeDescriptors(a, 'freesound', b, 'essentia', out)
+mergeDescriptors(a, None, b, None, out)
