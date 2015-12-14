@@ -1,36 +1,63 @@
 import numpy as np
 
+
+"""
 descriptors = [
     (1, 'lowlevel.spectral_centroid.mean'),
     (1, 'lowlevel.dissonance.mean'),
     (1, 'lowlevel.hfc.mean'),
+    (1, 'lowlevel.spectral_complexity.mean'),
+
     (1, 'sfx.logattacktime.mean'),
     (1, 'sfx.inharmonicity.mean'),
+
     (6, 'lowlevel.spectral_contrast.mean'),
     (6, 'lowlevel.mfcc.mean'),
     (8, 'lowlevel.mfcc_bands.mean'),
 
-    (1, 'lowlevel.dissonance.var'),
-    (1, 'sfx.inharmonicity.var'),
-    (6, 'lowlevel.spectral_contrast.var'),
+
     (1, 'lowlevel.spectral_centroid.var'),
-    (6, 'lowlevel.mfcc.var'),
-    (1, 'sfx.logattacktime.var'),
+    (1, 'lowlevel.dissonance.var'),
     (1, 'lowlevel.hfc.var'),
+    (1, 'lowlevel.spectral_complexity.var'),
+
+    (1, 'sfx.logattacktime.var'),
+    (1, 'sfx.inharmonicity.var'),
+
+    (6, 'lowlevel.spectral_contrast.var'),
+    (6, 'lowlevel.mfcc.var'),
     (8, 'lowlevel.mfcc_bands.var'),
+]
+"""
+
+descriptors = [
+    (1, 'lowlevel.spectral_centroid.mean'),
+    (1, 'lowlevel.dissonance.mean'),
+    (1, 'lowlevel.hfc.mean'),
+    (1, 'lowlevel.spectral_complexity.mean'),
+
+    (1, 'sfx.logattacktime.mean'),
+    (1, 'sfx.inharmonicity.mean'),
+
+    (4, 'lowlevel.mfcc.mean'),
 ]
 
 
+
+
 eps = np.finfo(float).eps
-threshold = [eps, 0.0001, 0.001, 0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 0.9, 0.95, 0.98, 0.99, 0.999, 0.9999, 1-eps]
+thresholdCategories = [eps, 0.0001, 0.001, 0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 0.9, 0.95, 0.98, 0.99, 0.999, 0.9999, 1-eps]
+thresholdSelect = [1, 4, 7]
+
+threshold = [thresholdCategories[i] for i in thresholdSelect]
+
 
 def getDescriptors():
-    descriptors = []
+    dscptrs = []
     for i in range(len(threshold)):
-        for n, desc in descriptorsBase:
-            descriptors.append((n, "ethc"+str(i) + "." + desc))
-    return descriptors
-
+        for n, desc in descriptors:
+            dscptrs.append((n, "ethc"+str(thresholdSelect[i]) + "." + desc))
+    return dscptrs
 
 
 def getExpandedDescriptors():

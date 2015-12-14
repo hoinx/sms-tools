@@ -27,19 +27,23 @@ def createArray(a, words):
     return s
 
 descRange = range(len(descriptorMapping))  # brute force
+#descRange = [0, 1, 2, 3, 5, 6, 7, 8, 14, 17, 19, 20, 24]
 n = len(descRange)
 
 errMax = 10000.0
 length = 2
 retries = 1
-inputDir = 'joeDown_Opt1_redux'
+inputDir = 'joeDown_Opt1'
 
 debugInit = False
 
 print"----------------------------------------------------------"
 for i in range(len(descriptorMapping)):
-    print i, " : ", descriptorMapping[i]
-
+    print i, " : ", descriptorMapping[i],
+    if i in descRange:
+        print " <---- selected"
+    else:
+        print
 
 accomplished = []
 

@@ -1,12 +1,10 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import essentia.standard as ess
 import essentia as es
 import json
-import os, sys
-from collections import OrderedDict
+import os
 
-import descriptors_joeOpt1 as dscr
+import descriptors_joeOpt2_redux as dscr
 
 def getInputFileList(inputDir, audioType = '.mp3'):
     fileList = []
@@ -43,46 +41,12 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
     :return:
     """
 
-    #help(ess.SpectralContrast)
-
-
-
-    """ orig
-    M = 1024
-    N = 1024
-    H = 512
-    fs = 44100
-    W = 'hann'
-    """
-
-    """ freesound
-    Real sampleRate = 44100;
-    int frameSize =   2048;
-    int hopSize =     1024;
-    int zeroPadding = 0;
-
-    string silentFrames ="noise";
-    string windowType = "blackmanharris62";
-
-    // Silence Rate
-    Real thresholds_dB[] = { -20, -30, -60 };
-    vector<Real> thresholds(ARRAY_SIZE(thresholds_dB));
-    for (uint i=0; i<thresholds.size(); i++) {
-        thresholds[i] = db2lin(thresholds_dB[i]/2.0);
-    }
-
-
-    """
-
     M = 2048
     N = 2048
     H = 1024
     fs = 44100
 
     W = 'blackmanharris62'
-    #silentFrames = "noise"
-    #thresholds_dB = np.array([ -20, -30, -60 ])
-    #thresholds = np.power (10.0, thresholds_dB / 20)
 
 
     #spectrum = ess.Spectrum(size=N)
@@ -117,14 +81,14 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
 
     hfc = ess.HFC()
 
+    # magnitudeThreshold = 0.005 is hardcoded for a "blackmanharris62" frame, see lowlevel.py
+    spectral_complexity = ess.SpectralComplexity(magnitudeThreshold=0.005)
+
+
     energy = ess.Energy()
 
     x = ess.MonoLoader(filename=inputAudioFile, sampleRate=fs)()
     frames = ess.FrameGenerator(x, frameSize=M, hopSize=H, startFromZero=True)
-
-    eps = np.finfo(float).eps
-    threshold = [eps, 0.0001, 0.001, 0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 0.9, 0.95, 0.98, 0.99, 0.999, 0.9999, 1-eps]
-
 
     E = []
     numFrames = 0
@@ -137,7 +101,7 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
 
     frames = ess.FrameGenerator(x, frameSize=M, hopSize=H, startFromZero=True)
 
-    pools = [(t, es.Pool()) for t in threshold]
+    pools = [(t, es.Pool()) for t in dscr.threshold]
     for frame in frames:
 
         eNorm = energy(frame) / E_max
@@ -151,7 +115,7 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
         mfcc_bands, mfcc_coeffs = mfcc(mX)
 
         [pool.add('lowlevel.mfcc', mfcc_coeffs) for pool in threshPools]
-        [pool.add('lowlevel.mfcc_bands', mfcc_bands) for pool in threshPools]
+        #[pool.add('lowlevel.mfcc_bands', mfcc_bands) for pool in threshPools]
 
         pfreq, pmag = spectral_peaks(mX)
 
@@ -181,13 +145,16 @@ def reComputeDescriptors(inputAudioFile, outputJsonFile):
         h = hfc(mX)
         [pool.add('lowlevel.hfc', h) for pool in threshPools]
 
+        spec_complx = spectral_complexity(mX)
+        [pool.add('lowlevel.spectral_complexity', spec_complx) for pool in threshPools]
 
 
-    calc_Mean_Var = ess.PoolAggregator(defaultStats=['mean', 'var'])
+    #calc_Mean_Var = ess.PoolAggregator(defaultStats=['mean', 'var'])
+    calc_Mean_Var = ess.PoolAggregator(defaultStats=['mean'])
     aggrPools = [calc_Mean_Var(pool) for t, pool in pools]
 
     features = {}
-    [appendFeatures(features, aggrPools[i], ("ethc"+str(i))) for i in range(len(aggrPools))]
+    [appendFeatures(features, aggrPools[i], ("ethc"+str(dscr.thresholdSelect[i]))) for i in range(len(aggrPools))]
     json.dump(features, open(outputJsonFile, 'w'))
 
 
@@ -203,7 +170,7 @@ def updateDescriptorsInFileList(fileList):
     print "Done."
 
 
-#updateDescriptorsInFileList(getInputFileList('joeDown_OptA'))
+#updateDescriptorsInFileList(getInputFileList('joeDown_Opt1_redux'))
 
 
 updateDescriptorsInFileList(getInputFileList('joeDown_Opt1/bassoon'))
