@@ -11,7 +11,12 @@ workspace_joe/*
 workspace/A10c/downloadSounds/Freesound API.txt
 workspace/A10c/downloadSounds/myFreesoundConfig.py
 workspace/A10c/joeDown*/*
+workspace/A10c/joeDesc*/*
+workspace/A10c/joeHist*/*
 workspace/A10c/joePlot*/*
 workspace/A10c/joeTestOut*/*
 workspace/A9/Freesound API.txt
 workspace/A9/myFreesoundKey.py
+workspace/A10a/*
+workspace/notes/*
+
